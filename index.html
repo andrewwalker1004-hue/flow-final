@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Flow — A charity: water Game Concept</title>
+<meta name="description" content="Flow: an educational water-allocation puzzle game inspired by charity: water." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- Background ambient water animation -->
+<div class="bg-water" aria-hidden="true">
+  <span class="drop d1">💧</span>
+  <span class="drop d2">💧</span>
+  <span class="drop d3">💧</span>
+  <span class="drop d4">💧</span>
+  <span class="drop d5">💧</span>
+</div>
+
+<div id="app">
+
+  <!-- ============ HOME SCREEN ============ -->
+  <section id="screen-home" class="screen active">
+    <div class="home-wrap">
+      <header class="home-header">
+        <div class="logo-badge" aria-hidden="true">
+          <span class="droplet-icon">💧</span>
+        </div>
+        <h1 class="logo-title">Flow</h1>
+        <p class="tagline">Every Drop Makes a Difference.</p>
+        <p class="home-desc">
+          Flow is a water-allocation puzzle game inspired by charity: water's mission.
+          Distribute limited clean water across hospitals, homes, schools, and factories —
+          balance every community's needs and learn why access to water changes everything.
+        </p>
+      </header>
+
+      <div class="home-stats card">
+        <div class="stat">
+          <span class="stat-label">Player XP</span>
+          <span class="stat-value" id="home-xp">0</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">Town Progress</span>
+          <span class="stat-value" id="home-town-progress">0 / 5</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">Current Town</span>
+          <span class="stat-value" id="home-town-name">The Beginning</span>
+        </div>
+      </div>
+
+      <div class="home-actions">
+        <button id="btn-play" class="btn btn-primary btn-lg">▶ Play Puzzle</button>
+        <button id="btn-howto" class="btn btn-secondary">How to Play</button>
+        <button id="btn-leaderboard" class="btn btn-secondary">Leaderboard</button>
+        <button id="btn-profile" class="btn btn-secondary">Profile &amp; Achievements</button>
+      </div>
+
+      <div class="home-footer">
+        <button id="btn-learn" class="link-btn">Learn About charity: water →</button>
+        <button id="btn-sound" class="icon-toggle" aria-pressed="true" title="Toggle sound">🔊</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ HOW TO PLAY ============ -->
+  <section id="screen-tutorial" class="screen">
+    <div class="panel-wrap">
+      <h2 class="screen-title">How to Play</h2>
+      <ol class="tutorial-steps">
+        <li>
+          <span class="step-num">1</span>
+          <div><strong>Limited supply.</strong> Each town has a limited amount of clean water available.</div>
+        </li>
+        <li>
+          <span class="step-num">2</span>
+          <div><strong>Every building needs water.</strong> Hospitals, homes, schools, and factories each have a required demand.</div>
+        </li>
+        <li>
+          <span class="step-num">3</span>
+          <div><strong>Allocate it.</strong> Use the sliders or the +/- buttons to send water to each building.</div>
+        </li>
+        <li>
+          <span class="step-num">4</span>
+          <div><strong>Satisfy as many as you can.</strong> A building is "fully satisfied" only when it gets at least its full demand.</div>
+        </li>
+        <li>
+          <span class="step-num">5</span>
+          <div><strong>Submit.</strong> Submit your distribution to calculate your efficiency score.</div>
+        </li>
+        <li>
+          <span class="step-num">6</span>
+          <div><strong>Earn XP &amp; unlock more.</strong> Earn XP based on your result and unlock new puzzles and towns.</div>
+        </li>
+      </ol>
+      <div class="tutorial-actions">
+        <button id="btn-tutorial-play" class="btn btn-primary btn-lg">Start Playing</button>
+        <button id="btn-tutorial-back" class="btn btn-secondary">Back to Home</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ DIFFICULTY SELECT ============ -->
+  <section id="screen-difficulty" class="screen">
+    <div class="panel-wrap">
+      <h2 class="screen-title">Choose Your Difficulty</h2>
+      <p class="difficulty-sub">
+        Pick how challenging this round will be. You can change it anytime from the puzzle screen —
+        your choice never blocks you from clearing a puzzle.
+      </p>
+      <div class="difficulty-grid" id="difficulty-grid"><!-- cards injected by JS --></div>
+      <div class="tutorial-actions">
+        <button id="btn-difficulty-confirm" class="btn btn-primary btn-lg">Start Puzzle →</button>
+        <button id="btn-difficulty-back" class="btn btn-secondary">Back to Home</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ MAIN PUZZLE SCREEN ============ -->
+  <section id="screen-puzzle" class="screen">
+    <div class="puzzle-wrap">
+
+      <div class="puzzle-topbar card">
+        <button id="btn-puzzle-home" class="btn btn-ghost btn-sm">← Home</button>
+        <div class="topbar-info">
+          <div class="topbar-title" id="puzzle-title">Town 1 – Puzzle 1</div>
+          <div class="topbar-sub" id="puzzle-subtitle"></div>
+        </div>
+        <div class="topbar-stats">
+          <div class="mini-stat"><span class="mini-label">XP</span><span class="mini-value" id="puzzle-xp">0</span></div>
+          <div class="mini-stat"><span class="mini-label">Efficiency</span><span class="mini-value" id="puzzle-efficiency-preview">0%</span></div>
+          <div class="mini-stat hidden" id="puzzle-timer-wrap"><span class="mini-label">Time Left</span><span class="mini-value" id="puzzle-timer">90s</span></div>
+        </div>
+        <button id="btn-change-difficulty" class="btn btn-ghost btn-sm" title="Change difficulty">🎚 <span id="puzzle-difficulty-label">Normal</span></button>
+        <button id="btn-puzzle-sound" class="icon-toggle" aria-pressed="true" title="Toggle sound">🔊</button>
+      </div>
+
+      <div id="leakage-banner" class="leakage-banner hidden">
+        ⚠️ <strong>Pipe Leakage!</strong>
+        <span id="leakage-text"></span>
+      </div>
+
+      <div class="water-supply-bar card">
+        <div class="supply-row">
+          <span>Total Water Available</span>
+          <strong id="supply-total">0 L</strong>
+        </div>
+        <div class="supply-row">
+          <span>Total Water Demand</span>
+          <strong id="supply-demand">0 L</strong>
+        </div>
+        <div class="supply-row remaining-row">
+          <span>Water Remaining to Allocate</span>
+          <strong id="supply-remaining">0 L</strong>
+        </div>
+        <div class="remaining-track"><div class="remaining-fill" id="remaining-fill"></div></div>
+        <div class="best-possible-note hidden" id="best-possible-note"></div>
+      </div>
+
+      <div class="town-grid" id="town-grid">
+        <!-- building cards injected by JS -->
+      </div>
+
+      <div class="puzzle-footer">
+        <button id="btn-reset-allocation" class="btn btn-secondary">↺ Reset Allocation</button>
+        <button id="btn-submit" class="btn btn-primary btn-lg">Submit Distribution</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ LEADERBOARD ============ -->
+  <section id="screen-leaderboard" class="screen">
+    <div class="panel-wrap">
+      <h2 class="screen-title">Leaderboard</h2>
+      <p class="leaderboard-note">📍 Local / demo leaderboard — stored on this device only. Not synced across devices.</p>
+
+      <div class="name-edit card">
+        <label for="player-name-input">Your display name</label>
+        <div class="name-edit-row">
+          <input type="text" id="player-name-input" maxlength="18" placeholder="Enter your name" />
+          <button id="btn-save-name" class="btn btn-secondary btn-sm">Save</button>
+        </div>
+      </div>
+
+      <table class="leaderboard-table" id="leaderboard-table">
+        <thead>
+          <tr><th>Rank</th><th>Player</th><th>XP</th><th>Town</th><th>Puzzles Completed</th></tr>
+        </thead>
+        <tbody id="leaderboard-body"></tbody>
+      </table>
+
+      <button id="btn-leaderboard-back" class="btn btn-secondary">Back to Home</button>
+    </div>
+  </section>
+
+  <!-- ============ RESULTS OVERLAY ============ -->
+  <div id="overlay-results" class="overlay hidden">
+    <div class="overlay-card results-card">
+      <div class="result-icon" id="result-icon">✅</div>
+      <h2 class="result-title" id="result-title">Success!</h2>
+      <p class="result-message" id="result-message"></p>
+
+      <div class="result-efficiency">
+        <div class="eff-ring-wrap">
+          <div class="eff-ring" id="eff-ring">
+            <span id="eff-ring-value">0%</span>
+          </div>
+        </div>
+        <div class="result-zones" id="result-zones"></div>
+      </div>
+
+      <div class="result-summary-counts" id="result-summary-counts"></div>
+
+      <div class="xp-award">
+        <span>XP Earned</span>
+        <span class="xp-award-value" id="xp-award-value">+0</span>
+      </div>
+      <div class="xp-note" id="xp-note"></div>
+      <div class="xp-total-row">Total XP: <strong id="result-total-xp">0</strong></div>
+
+      <div class="fact-box" id="result-fact"></div>
+
+      <div class="result-actions">
+        <button id="btn-retry" class="btn btn-secondary">↺ Retry Puzzle</button>
+        <button id="btn-continue" class="btn btn-primary">Continue →</button>
+        <button id="btn-result-home" class="btn btn-ghost">Back to Home</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ TOWN COMPLETE OVERLAY ============ -->
+  <div id="overlay-town-complete" class="overlay hidden">
+    <div class="overlay-card town-complete-card">
+      <div class="town-complete-icon">🏆</div>
+      <h2>Town Complete!</h2>
+      <p id="town-complete-impact" class="impact-text"></p>
+      <div class="town-complete-stats">
+        <div><span id="town-complete-xp">0</span><small>Total XP Earned</small></div>
+        <div><span id="town-complete-puzzles">5</span><small>Puzzles Completed</small></div>
+      </div>
+      <p class="impact-disclaimer">Impact figures are illustrative simulated estimates for this prototype, not verified real-world outcomes.</p>
+      <div class="result-actions">
+        <button id="btn-next-town" class="btn btn-primary">Next Town →</button>
+        <button id="btn-learn-more-town" class="btn btn-secondary">Learn More</button>
+        <button id="btn-town-complete-home" class="btn btn-ghost">Back to Home</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ LEARN MORE OVERLAY ============ -->
+  <div id="overlay-learn" class="overlay hidden">
+    <div class="overlay-card learn-card">
+      <button class="overlay-close" data-close="overlay-learn">✕</button>
+      <h2>About charity: water</h2>
+      <p>
+        charity: water is a real nonprofit organization working to bring clean and safe drinking water
+        to people around the world. Access to clean water affects health, education, and economic
+        opportunity for entire communities.
+      </p>
+      <p>
+        <strong>Flow is an independent, unofficial educational prototype</strong> created to raise awareness
+        of water-access issues. It is not produced, endorsed, or verified by charity: water, and gameplay
+        does not generate real donations or fund real projects.
+      </p>
+      <p>
+        To learn more or support real water projects, visit the official site:
+      </p>
+      <a href="https://www.charitywater.org/" target="_blank" rel="noopener noreferrer" class="btn btn-primary">
+        Visit charitywater.org →
+      </a>
+    </div>
+  </div>
+
+  <!-- ============ PROFILE / ACHIEVEMENTS OVERLAY ============ -->
+  <div id="overlay-profile" class="overlay hidden">
+    <div class="overlay-card profile-card">
+      <button class="overlay-close" data-close="overlay-profile">✕</button>
+      <h2>Player Profile</h2>
+      <div class="profile-stats" id="profile-stats"></div>
+
+      <h3>Achievements</h3>
+      <div class="achievements-grid" id="achievements-grid"></div>
+
+      <h3>Milestones</h3>
+      <div class="milestones-panel" id="milestones-panel"></div>
+
+      <div class="profile-settings">
+        <button id="btn-toggle-sound-profile" class="btn btn-secondary btn-sm">Sound: On</button>
+        <button id="btn-reset-game" class="btn btn-danger btn-sm">Reset Game Progress</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reset confirmation -->
+  <div id="overlay-confirm-reset" class="overlay hidden">
+    <div class="overlay-card confirm-card">
+      <h2>Reset all progress?</h2>
+      <p>This will permanently erase your XP, puzzle progress, achievements, and leaderboard score on this device. This cannot be undone.</p>
+      <div class="result-actions">
+        <button id="btn-confirm-reset" class="btn btn-danger">Yes, Reset Everything</button>
+        <button id="btn-cancel-reset" class="btn btn-secondary">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- XP toast popup -->
+  <div id="xp-toast" class="xp-toast hidden">+0 XP</div>
+
+  <!-- Milestone toast popup -->
+  <div id="milestone-toast" class="xp-toast milestone-toast hidden"></div>
+
+  <!-- Confetti layer -->
+  <div id="confetti-layer" class="confetti-layer" aria-hidden="true"></div>
+
+  <!-- ============ CHARITY: WATER FOOTER (persistent) ============ -->
+  <footer class="site-footer" id="site-footer">
+    <div class="footer-inner">
+      <h3 class="footer-heading">Help Bring Clean Water to More Communities</h3>
+      <p class="footer-desc">
+        charity: water is a real nonprofit organization working to bring clean and safe drinking water to people
+        around the world. <strong>Flow is an independent, unofficial educational prototype</strong> inspired by their
+        mission — it is not produced, endorsed, or verified by charity: water, and playing it does
+        <strong>not</strong> generate real donations or fund real water projects.
+      </p>
+      <div class="footer-links">
+        <a href="https://www.charitywater.org/" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm">Learn More</a>
+        <a href="https://www.charitywater.org/donate" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-sm">Support Clean Water</a>
+      </div>
+    </div>
+  </footer>
+
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
